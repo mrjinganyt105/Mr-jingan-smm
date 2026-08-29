@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My SMM Panel</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f9; margin: 20px; }
+        .container { max-width: 900px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #333; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; }
+        input, select, button { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        button { background-color: #28a745; color: white; border: none; font-size: 16px; cursor: pointer; }
+        button:hover { background-color: #218838; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #007bff; color: white; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>SMM Services List</h1>
+    <button onclick="loadServices()">Load Services</button>
+
+    <table id="servicesTable" style="display:none;">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Rate (per 1000)</th>
+                <th>Min</th>
+                <th>Max</th>
+            </tr>
+        </thead>
+        <tbody id="servicesBody"></tbody>
+    </table>
+</div>
+
+<script>
+async function loadServices() {
+    const apiKey = 'YOUR_API_KEY_HERE'; // Ningalude API Key ivide kodukkuka
+    const apiUrl = 'https://indiansmmprovider.in/api/v2';
+
+    // FormData object set cheyyunnu (POST Request)
+    const formData = new FormData();
+    formData.append('key', apiKey);
+    formData.append('action', 'services');
+
+    try {
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+        
+        const tableBody = document.getElementById('servicesBody');
+        tableBody.innerHTML = '';
+
+        data.forEach(item => {
+            const row = `<tr>
+                <td>${item.service}</td>
+                <td>${item.name}</td>
+                <td>${item.category}</td>
+                <td>₹${item.rate}</td>
+                <td>${item.min}</td>
+                <td>${item.max}</td>
+            </tr>`;
+            tableBody.innerHTML += row;
+        });
+
+        document.getElementById('servicesTable').style.display = 'table';
+
+    } catch (error) {
+        alert('Services load cheyyan sadhichilla! API key check cheyyuka.');
+        console.error('Error:', error);
+    }
+}
+</script>
+
+</body>
+</html>
