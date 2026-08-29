@@ -8,10 +8,7 @@
         body { font-family: Arial, sans-serif; background-color: #f4f4f9; margin: 20px; }
         .container { max-width: 900px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
         h1 { text-align: center; color: #333; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; }
-        input, select, button { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        button { background-color: #28a745; color: white; border: none; font-size: 16px; cursor: pointer; }
+        button { width: 100%; padding: 10px; background-color: #28a745; color: white; border: none; font-size: 16px; cursor: pointer; border-radius: 5px; }
         button:hover { background-color: #218838; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
@@ -41,12 +38,9 @@
 
 <script>
 async function loadServices() {
-    const apiKey = 'YOUR_API_KEY_HERE'; // <script>
-async function loadServices() {
-    // Ningalude Real API Key ivide Replace cheyyuka
+    // Ningalude Original API Key ivide Replace cheyyuka
     const apiKey = 'YOUR_ACTUAL_API_KEY_HERE'; 
     
-    // CORS Proxy vazhi request ayakkunnu
     const targetUrl = 'https://indiansmmprovider.in/api/v2';
     const apiUrl = 'https://corsproxy.io/?' + encodeURIComponent(targetUrl);
 
@@ -85,45 +79,7 @@ async function loadServices() {
         document.getElementById('servicesTable').style.display = 'table';
 
     } catch (error) {
-        alert('Services load cheyyan sadhichilla! API key athava Connection check cheyyuka.');
-        console.error('Error:', error);
-    }
-}
-</script>
-    const apiUrl = 'https://indiansmmprovider.in/api/v2';
-
-    // FormData object set cheyyunnu (POST Request)
-    const formData = new FormData();
-    formData.append('key', apiKey);
-    formData.append('action', 'services');
-
-    try {
-        const response = await fetch(apiUrl, {
-            method: 'POST',
-            body: formData
-        });
-
-        const data = await response.json();
-        
-        const tableBody = document.getElementById('servicesBody');
-        tableBody.innerHTML = '';
-
-        data.forEach(item => {
-            const row = `<tr>
-                <td>${item.service}</td>
-                <td>${item.name}</td>
-                <td>${item.category}</td>
-                <td>₹${item.rate}</td>
-                <td>${item.min}</td>
-                <td>${item.max}</td>
-            </tr>`;
-            tableBody.innerHTML += row;
-        });
-
-        document.getElementById('servicesTable').style.display = 'table';
-
-    } catch (error) {
-        alert('Services load cheyyan sadhichilla! API key check cheyyuka.');
+        alert('Services load cheyyan sadhichilla! Connection check cheyyuka.');
         console.error('Error:', error);
     }
 }
