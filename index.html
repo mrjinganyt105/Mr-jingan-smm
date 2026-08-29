@@ -1,228 +1,81 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ml">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMM Panel Pro</title>
+    <title>My SMM Panel</title>
     <style>
-        :root { --primary: #007bff; --success: #28a745; --bg: #f4f6f9; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; padding: 15px; }
-        .container { max-width: 900px; margin: 0 auto; }
-        .card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        h2 { margin-top: 0; color: #333; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: 600; color: #555; }
-        input, select, button { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 14px; }
-        button { background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        button:hover { opacity: 0.9; }
-        .btn-success { background: var(--success); }
-        .balance-box { background: #e9ecef; padding: 10px 15px; border-radius: 5px; font-weight: bold; text-align: right; margin-bottom: 15px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 13px; }
-        th { background: var(--primary); color: white; }
-        .nav-tabs { display: flex; gap: 10px; margin-bottom: 15px; }
-        .nav-tabs button { flex: 1; }
-        .section { display: none; }
-        .section.active { display: block; }
+        body { font-family: Arial, sans-serif; background-color: #f4f4f9; margin: 20px; }
+        .container { max-width: 900px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #333; }
+        button { width: 100%; padding: 12px; background-color: #28a745; color: white; border: none; font-size: 16px; cursor: pointer; border-radius: 5px; font-weight: bold; }
+        button:hover { background-color: #218838; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #007bff; color: white; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- Header & Balance -->
-    <div class="card">
-        <h2>SMM Dashboard</h2>
-        <div class="form-group">
-            <label>API Key Settings</label>
-            <input type="text" id="globalApiKey" placeholder="Enter your API Key here">
-        </div>
-        <div class="balance-box">
-            Balance: <span id="userBalance">0.00</span> <span id="userCurrency">USD</span>
-            <button onclick="checkBalance()" style="width: auto; padding: 5px 10px; margin-left: 10px;">Check</button>
-        </div>
-    </div>
+    <h1>SMM Services List</h1>
+    <button onclick="loadServices()">Load Services</button>
 
-    <!-- Navigation -->
-    <div class="nav-tabs">
-        <button class="btn-success" onclick="switchTab('newOrder')">New Order</button>
-        <button onclick="switchTab('orderStatus')">Check Status</button>
-        <button onclick="switchTab('services')">Services List</button>
-    </div>
-
-    <!-- Section 1: New Order -->
-    <div id="newOrder" class="card section active">
-        <h2>Place New Order</h2>
-        <div class="form-group">
-            <label>Service ID</label>
-            <input type="number" id="orderServiceId" placeholder="e.g. 1">
-        </div>
-        <div class="form-group">
-            <label>Link</label>
-            <input type="url" id="orderLink" placeholder="https://instagram.com/profile">
-        </div>
-        <div class="form-group">
-            <label>Quantity</label>
-            <input type="number" id="orderQuantity" placeholder="1000">
-        </div>
-        <button onclick="placeOrder()">Submit Order</button>
-    </div>
-
-    <!-- Section 2: Order Status -->
-    <div id="orderStatus" class="card section">
-        <h2>Check Order Status</h2>
-        <div class="form-group">
-            <label>Order ID</label>
-            <input type="number" id="statusOrderId" placeholder="e.g. 23501">
-        </div>
-        <button onclick="checkOrderStatus()">Get Status</button>
-        <div id="statusResult" style="margin-top: 15px;"></div>
-    </div>
-
-    <!-- Section 3: Services List -->
-    <div id="services" class="card section">
-        <h2>Available Services</h2>
-        <button onclick="loadServices()">Fetch All Services</button>
-        <div style="overflow-x: auto;">
-            <table id="servicesTable" style="display:none;">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Category</th>
-                        <th>Rate</th>
-                        <th>Min/Max</th>
-                    </tr>
-                </thead>
-                <tbody id="servicesBody"></tbody>
-            </table>
-        </div>
-    </div>
+    <table id="servicesTable" style="display:none;">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Rate (per 1000)</th>
+                <th>Min</th>
+                <th>Max</th>
+            </tr>
+        </thead>
+        <tbody id="servicesBody"></tbody>
+    </table>
 </div>
 
 <script>
-const BASE_URL = 'https://corsproxy.io/?' + encodeURIComponent('https://indiansmmprovider.in/api/v2');
-
-function getApiKey() {
-    const key = document.getElementById('globalApiKey').value.trim();
-    if (!key) {
-        alert('Please enter your API Key at the top!');
-        return null;
-    }
-    return key;
-}
-
-function switchTab(tabId) {
-    document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
-    document.getElementById(tabId).classList.add('active');
-}
-
-// 1. Fetch User Balance
-async function checkBalance() {
-    const key = getApiKey();
-    if (!key) return;
-
-    const formData = new FormData();
-    formData.append('key', key);
-    formData.append('action', 'balance');
-
-    try {
-        const res = await fetch(BASE_URL, { method: 'POST', body: formData });
-        const data = await res.json();
-        if (data.balance !== undefined) {
-            document.getElementById('userBalance').innerText = data.balance;
-            document.getElementById('userCurrency').innerText = data.currency;
-        } else {
-            alert(data.error || 'Failed to fetch balance');
-        }
-    } catch (e) { alert('Error fetching balance'); }
-}
-
-// 2. Place New Order
-async function placeOrder() {
-    const key = getApiKey();
-    if (!key) return;
-
-    const service = document.getElementById('orderServiceId').value;
-    const link = document.getElementById('orderLink').value;
-    const quantity = document.getElementById('orderQuantity').value;
-
-    if (!service || !link || !quantity) return alert('Fill all order fields!');
-
-    const formData = new FormData();
-    formData.append('key', key);
-    formData.append('action', 'add');
-    formData.append('service', service);
-    formData.append('link', link);
-    formData.append('quantity', quantity);
-
-    try {
-        const res = await fetch(BASE_URL, { method: 'POST', body: formData });
-        const data = await res.json();
-        if (data.order) {
-            alert('Order Placed Successfully! Order ID: ' + data.order);
-        } else {
-            alert('Order Failed: ' + (data.error || 'Unknown error'));
-        }
-    } catch (e) { alert('Request failed'); }
-}
-
-// 3. Check Order Status
-async function checkOrderStatus() {
-    const key = getApiKey();
-    if (!key) return;
-
-    const orderId = document.getElementById('statusOrderId').value;
-    if (!orderId) return alert('Enter Order ID');
-
-    const formData = new FormData();
-    formData.append('key', key);
-    formData.append('action', 'status');
-    formData.append('order', orderId);
-
-    try {
-        const res = await fetch(BASE_URL, { method: 'POST', body: formData });
-        const data = await res.json();
-        if (data.status) {
-            document.getElementById('statusResult').innerHTML = `
-                <p><strong>Status:</strong> ${data.status}</p>
-                <p><strong>Charge:</strong> ${data.charge} ${data.currency}</p>
-                <p><strong>Start Count:</strong> ${data.start_count}</p>
-                <p><strong>Remains:</strong> ${data.remains}</p>
-            `;
-        } else {
-            document.getElementById('statusResult').innerText = data.error || 'Order not found';
-        }
-    } catch (e) { alert('Failed to fetch status'); }
-}
-
-// 4. Fetch Service List
 async function loadServices() {
-    const key = getApiKey();
-    if (!key) return;
+    // Ningal thanna Real API Key direct connect cheythu
+    const apiKey = 'DfSXv45rFQTeZAwZYcK9EeD4yDivK8PSewl3lKwybGE8fp5u1qw6JZlbkd4SeenZ'; 
 
-    const formData = new FormData();
-    formData.append('key', key);
-    formData.append('action', 'services');
+    const targetUrl = 'https://indiansmmprovider.in/api/v2';
+    const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(targetUrl + '?key=' + apiKey + '&action=services');
 
     try {
-        const res = await fetch(BASE_URL, { method: 'POST', body: formData });
-        const data = await res.json();
+        const response = await fetch(proxyUrl);
+        const proxyData = await response.json();
         
-        if (!Array.isArray(data)) return alert(data.error || 'Invalid response');
+        const data = JSON.parse(proxyData.contents);
 
-        const body = document.getElementById('servicesBody');
-        body.innerHTML = '';
+        if (!Array.isArray(data)) {
+            alert('API Error: ' + (data.error || 'Invalid API Key or Provider Error'));
+            return;
+        }
+
+        const tableBody = document.getElementById('servicesBody');
+        tableBody.innerHTML = '';
+
         data.forEach(item => {
-            body.innerHTML += `<tr>
+            const row = `<tr>
                 <td>${item.service}</td>
                 <td>${item.name}</td>
                 <td>${item.category}</td>
-                <td>${item.rate}</td>
-                <td>${item.min} / ${item.max}</td>
+                <td>₹${item.rate}</td>
+                <td>${item.min}</td>
+                <td>${item.max}</td>
             </tr>`;
+            tableBody.innerHTML += row;
         });
+
         document.getElementById('servicesTable').style.display = 'table';
-    } catch (e) { alert('Failed to load services'); }
+
+    } catch (error) {
+        alert('Services load cheyyan sadhichilla! Connection check cheyyuka.');
+        console.error('Error:', error);
+    }
 }
 </script>
 
