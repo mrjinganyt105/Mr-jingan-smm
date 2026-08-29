@@ -41,7 +41,55 @@
 
 <script>
 async function loadServices() {
-    const apiKey = 'YOUR_API_KEY_HERE'; // Ningalude API Key ivide kodukkuka
+    const apiKey = 'YOUR_API_KEY_HERE'; // <script>
+async function loadServices() {
+    // Ningalude Real API Key ivide Replace cheyyuka
+    const apiKey = 'YOUR_ACTUAL_API_KEY_HERE'; 
+    
+    // CORS Proxy vazhi request ayakkunnu
+    const targetUrl = 'https://indiansmmprovider.in/api/v2';
+    const apiUrl = 'https://corsproxy.io/?' + encodeURIComponent(targetUrl);
+
+    const formData = new FormData();
+    formData.append('key', apiKey);
+    formData.append('action', 'services');
+
+    try {
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+        
+        if (!Array.isArray(data)) {
+            alert('API Error: ' + (data.error || 'Invalid API Key'));
+            return;
+        }
+
+        const tableBody = document.getElementById('servicesBody');
+        tableBody.innerHTML = '';
+
+        data.forEach(item => {
+            const row = `<tr>
+                <td>${item.service}</td>
+                <td>${item.name}</td>
+                <td>${item.category}</td>
+                <td>₹${item.rate}</td>
+                <td>${item.min}</td>
+                <td>${item.max}</td>
+            </tr>`;
+            tableBody.innerHTML += row;
+        });
+
+        document.getElementById('servicesTable').style.display = 'table';
+
+    } catch (error) {
+        alert('Services load cheyyan sadhichilla! API key athava Connection check cheyyuka.');
+        console.error('Error:', error);
+    }
+}
+</script>
     const apiUrl = 'https://indiansmmprovider.in/api/v2';
 
     // FormData object set cheyyunnu (POST Request)
